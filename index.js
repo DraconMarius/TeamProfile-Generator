@@ -1,6 +1,6 @@
 
 //get global variable to store our employee
-let payroll = {};
+let payroll = [];
 
 
 //we need to prompt for answers:
@@ -133,13 +133,24 @@ const questions = [
     },
     {
         type: "confirm",
-        message: "Do you want to add another team-member?",
+        message: "Do you want to add another team member?",
         name: "addmore",
     },
 ];
 
 function addTeamMember() {
-    inquirer.prompt(questions).then if (an)
+    inquirer.prompt(questions).then((answers) => {
+        if (answers.mngr) {
+            const Lead = new Manager(answers);
+            payroll.push(Lead);
+        } else if (answers.eng) {
+            const eng = new Engineer(answers);
+            payroll.push(eng);
+        } else if (answers.intern) {
+            const Intern = new Intern(answers);
+            payroll.push(Intern);
+        }
+    })
 }
 
 //.then((answers) => {
