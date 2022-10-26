@@ -2,12 +2,13 @@ const Employee = require("./lib/employee");
 const Manager = require("./lib/mngr");
 const Engineer = require("./lib/eng");
 const Intern = require("./lib/intern");
+const fs = require("fs");
 const inquirer = require('inquirer');
-
+const generateHTML = require("./lib/generateHTML")
 
 //get global variable to store our employee after every ask.//
-let payroll = [];
 
+var payroll = [];
 
 //we need to prompt for answers:
 //everyone needs to have a name, an employee ID, and email. 
@@ -43,9 +44,9 @@ function addTeamMember() {
         {
             type: "input",
             message: "What is your employee ID?",
-            name: "employeeID",
+            name: "id",
             validate(answer) {
-                if (parseInt(answer) === NaN) { //this validation is not working, but we wil; 
+                if (parseInt(answer) === NaN) { //this validation is not working, but we will come back later; 
                     return "*Please provide a ID"
                 }
                 return true
@@ -119,7 +120,10 @@ function addTeamMember() {
             name: "addmore",
         },
     ]).then((answers) => {
-        console.log(answers);
+        console.log(answers); //depends on employee type, create new obj and push to payroll
+        if (!answers.addmore) {
+            console.log("flag");
+        };
         if (answers.mngr) {
             const Lead = new Manager(answers);
             payroll.push(Lead);
@@ -129,17 +133,39 @@ function addTeamMember() {
         } else if (answers.intern) {
             const internEmployee = new Intern(answers);
             payroll.push(internEmployee);
-        };
-        if (!answers.addmore) {
-            console.log(payroll);
-            return payroll;
+        } //console.log(payroll);
+        return payroll;
+    }).then((payroll) => {
+        console.log(payroll);
+        if (checkPayrollDone(payroll)) { //only if addmore = false then we do the work to generate the HTML.
+            const path = "./dist/profile.html";
+            const html = generateHTML(payroll);
+            fs.writeFile(path, html, (err) =>
+                (err) ? console.log("critical warning \b" + err) : console.log("HTML generated sucessfully"));
         } else {
             return addTeamMember();
-        }
+        };
     });
 };
 
 addTeamMember();
+
+function checkPayrollDone(payroll) {
+    let Done = false;
+    // console.log(payroll);
+    for (let i = 0; i < payroll.length; i++) {
+        if (payroll[i].addmore === false) {
+            Done = true;
+            console.log(Done);
+        }
+    }
+    console.log(Done);
+    return Done;
+};
+
+
+
+
 
 //.then((answers) => {
 //     console.log(answers);
