@@ -24,6 +24,12 @@ Then you will be ready to start you application by running the following:
 ``` bash
 node index.js
 ```
+***
+alternatively, feel free to run the following to make sure that our code is behaving correctly using `jest`:
+
+``` bash
+npm test
+```
 
 ***
 ## Demo Links / Media
