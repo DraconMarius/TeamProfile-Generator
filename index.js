@@ -9,6 +9,9 @@ const generateHTML = require("./lib/generateHTML")
 //get global variable to store our employee after every ask.//
 
 var payroll = [];
+// var teamReq = 3;
+var count = 0;
+var error = false;
 
 //we need to prompt for answers:
 //everyone needs to have a name, an employee ID, and email. 
@@ -54,7 +57,7 @@ function addTeamMember() {
         },
         { //is manager?
             type: "confirm",
-            message: "Are you a manager?",
+            message: "Are you a manager? (1 Max)",
             name: "mngr",
         },
         { //if yes = manager: officeNum special
@@ -70,7 +73,7 @@ function addTeamMember() {
         },
         { //only if manager is false, ask are you engineer?
             type: "confirm",
-            message: "Are you an Engineer?",
+            message: "Are you an Engineer? (1 max)",
             name: "eng",
             when: (answers) => {
                 if (!answers.mngr) {
@@ -96,7 +99,7 @@ function addTeamMember() {
         },
         { // if not manager AND not eng, must be intern?
             type: "confirm",
-            message: "Ah you must be intern then?",
+            message: "Ah you must be intern then? (1 max)",
             name: "intern",
             when: (answers) => {
                 if (!answers.mngr && !answers.eng) {
@@ -116,23 +119,30 @@ function addTeamMember() {
         },
         {
             type: "confirm",
-            message: "Do you want to add another team member?",
+            message: `Do you want to add another team member? Current TeamMember = ${count + 1}`,
             name: "addmore",
         },
     ]).then((answers) => {
         console.log(answers); //depends on employee type, create new obj and push to payroll
-        if (!answers.addmore) {
-            console.log("flag");
+        if (!answers.addmore && (((count + 1) < 3)) || (((count + 1) > 3))) {
+            error = true;
+            return (`You must have exactly 3 members in this team, sorry`)
         };
         if (answers.mngr) {
             const Lead = new Manager(answers);
             payroll.push(Lead);
+            count++;
+            // teamReq--;
         } else if (answers.eng) {
             const engEmployee = new Engineer(answers);
             payroll.push(engEmployee);
+            count++;
+            // teamReq--;
         } else if (answers.intern) {
             const internEmployee = new Intern(answers);
             payroll.push(internEmployee);
+            count++;
+            // teamReq--;
         } //console.log(payroll);
         return payroll;
     }).then((payroll) => {
@@ -142,6 +152,8 @@ function addTeamMember() {
             const html = generateHTML(payroll);
             fs.writeFile(path, html, (err) =>
                 (err) ? console.log("critical warning \b" + err) : console.log("HTML generated sucessfully"));
+        } else if (error) {
+            return console.error(`error, please try again`);
         } else {
             return addTeamMember();
         };
